@@ -1,5 +1,7 @@
 import logging
 
+from flask import g
+
 from .parsers import parse_command_with_records as pcr
 from .parsers import parse_command_with_text_arguments as pct
 from . import models as m
@@ -107,7 +109,12 @@ def is_workout_name(cmd):
 
 @parser(pcr)
 def workout(name, records):
-    return f"add records {records} for {name}"
+    logging.info("add records %s of workout %s for user %s", records, name, g.user.name)
+    try:
+        m.add_record(g.user, name, records)
+    except m.JsError as error:
+        return error.msg
+    return f'{g.user.name} 新增运动记录 {name}: {records}'
 
 
 _workout_processor = CmdRegisterItem(workout)
@@ -133,9 +140,11 @@ def process(cmd_line: str):
 
 
 if __name__ == '__main__':
+    import os
     import sys
     from .app import create_app
     app = create_app()
     with app.app_context():
+        g.user, _ = m.get_or_create_user(os.environ.get('USER'))
         logging.basicConfig(level=logging.DEBUG)
         print(process(' '.join(sys.argv[1:])))
