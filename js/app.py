@@ -1,6 +1,6 @@
 import flask
 
-import .models
+from . import models
 
 
 def create_app():
