@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.doubanio.com/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+Flask="==1.0.2"
+flask-db-tools="==0.0.2"
+Flask-SQLAlchemy="==2.3.2"
+
+[dev-packages]
+"pytest-flake8" = "*"
+"ipython" = "*"
+
+[requires]
+python_versione= "3.6"
