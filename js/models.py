@@ -39,10 +39,89 @@ class Command(db.Model):
 class Workout(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
+    description = db.Column(db.String(1024), nullable=False)
     records = db.relationship('WorkOutRecord', backref='workout', lazy=True)
 
     def __repr__(self):
         return '<WorkOut %r>' % self.name
+
+    @staticmethod
+    def create_builtin_workouts():
+        workouts = [
+            Workout(name='kbsw-4', description='4公斤壶铃摆荡'),
+            Workout(name='kbsw-8', description='8公斤壶铃摆荡'),
+            Workout(name='kbsw-12', description='12公斤壶铃摆荡'),
+            Workout(name='kbsw-16', description='16公斤壶铃摆荡'),
+            Workout(name='kbsw-24', description='24公斤壶铃摆荡'),
+
+            Workout(name='kbdl-4', description='4公斤壶铃硬拉'),
+            Workout(name='kbdl-8', description='8公斤壶铃硬拉'),
+            Workout(name='kbdl-12', description='12公斤壶铃硬拉'),
+            Workout(name='kbdl-16', description='16公斤壶铃硬拉'),
+            Workout(name='kbdl-24', description='24公斤壶铃硬拉'),
+
+            Workout(name='kbsq-4', description='4公斤壶铃深蹲'),
+            Workout(name='kbsq-8', description='8公斤壶铃深蹲'),
+            Workout(name='kbsq-12', description='12公斤壶铃深蹲'),
+            Workout(name='kbsq-16', description='16公斤壶铃深蹲'),
+            Workout(name='kbsq-24', description='24公斤壶铃深蹲'),
+
+            Workout(name='kbcl-4', description='4公斤壶铃高翻'),
+            Workout(name='kbcl-8', description='8公斤壶铃高翻'),
+            Workout(name='kbcl-12', description='12公斤壶铃高翻'),
+            Workout(name='kbcl-16', description='16公斤壶铃高翻'),
+            Workout(name='kbcl-24', description='24公斤壶铃高翻'),
+
+            Workout(name='kbsn-4', description='4公斤壶铃抓举'),
+            Workout(name='kbsn-8', description='8公斤壶铃抓举'),
+            Workout(name='kbsn-12', description='12公斤壶铃抓举'),
+            Workout(name='kbsn-16', description='16公斤壶铃抓举'),
+            Workout(name='kbsn-24', description='24公斤壶铃抓举'),
+
+            Workout(name='kbpr-4', description='4公斤壶铃实力举'),
+            Workout(name='kbpr-8', description='8公斤壶铃实力举'),
+            Workout(name='kbpr-12', description='12公斤壶铃实力举'),
+            Workout(name='kbpr-16', description='16公斤壶铃实力举'),
+            Workout(name='kbpr-24', description='24公斤壶铃实力举'),
+
+            Workout(name='squat', description='徒手深蹲'),
+            Workout(name='squat-20', description='20公斤颈后深蹲'),
+            Workout(name='squat-40', description='40公斤颈后深蹲'),
+            Workout(name='squat-50', description='50公斤颈后深蹲'),
+            Workout(name='squat-60', description='60公斤颈后深蹲'),
+            Workout(name='squat-70', description='70公斤颈后深蹲'),
+            Workout(name='squat-80', description='80公斤颈后深蹲'),
+            Workout(name='squat-90', description='90公斤颈后深蹲'),
+            Workout(name='squat-100', description='100公斤颈后深蹲'),
+            Workout(name='squat-110', description='110公斤颈后深蹲'),
+            Workout(name='squat-120', description='120公斤颈后深蹲'),
+            Workout(name='squat-130', description='130公斤颈后深蹲'),
+            Workout(name='squat-140', description='140公斤颈后深蹲'),
+
+            Workout(name='dlift-20', description='20公斤硬拉'),
+            Workout(name='dlift-40', description='40公斤硬拉'),
+            Workout(name='dlift-50', description='50公斤硬拉'),
+            Workout(name='dlift-60', description='60公斤硬拉'),
+            Workout(name='dlift-70', description='70公斤硬拉'),
+            Workout(name='dlift-80', description='80公斤硬拉'),
+            Workout(name='dlift-90', description='90公斤硬拉'),
+            Workout(name='dlift-100', description='100公斤硬拉'),
+            Workout(name='dlift-110', description='110公斤硬拉'),
+            Workout(name='dlift-120', description='120公斤硬拉'),
+            Workout(name='dlift-130', description='130公斤硬拉'),
+            Workout(name='dlift-140', description='140公斤硬拉'),
+
+            Workout(name='pullup', description='自重引体向上'),
+            Workout(name='pullup-aid', description='辅助引体向上'),
+
+            Workout(name='pushup', description='俯卧撑'),
+            Workout(name='parbar-press', description='双杠臂屈伸'),
+            Workout(name='burpee', description='波比跳'),
+        ]
+
+        for workout in workouts:
+            db.session.add(workout)
+        db.session.commit()
 
 
 class WorkOutRecord(db.Model):
@@ -208,3 +287,10 @@ def test_add_challenge_progress():
     assert progress.latest_record_id == 3
     assert progress.achieved == 0
 
+
+if __name__ == '__main__':
+    from .app import create_app
+    app = create_app()
+    with app.app_context():
+        db.create_all(app=app)
+        Workout.create_builtin_workouts()

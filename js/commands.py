@@ -2,6 +2,7 @@ import logging
 
 from .parsers import parse_command_with_records as pcr
 from .parsers import parse_command_with_text_arguments as pct
+from . import models as m
 
 cmd_processors = []
 
@@ -51,7 +52,7 @@ def parser(parse_func):
 
 @register_cmd('help', help_msg='显示支持的命令列表')
 @parser(pct)
-def help_cmd(cmd_name, args: list = None):
+def help_cmd(cmd, args: list = None):
     if len(args) == 0:
         commands = ', '.join(p.name for p in cmd_processors)
         return f'支持的命令包括: {commands}'
@@ -59,14 +60,15 @@ def help_cmd(cmd_name, args: list = None):
         cmd_name = args[0]
         _, processor = find_processor(cmd_name)
         if processor is None or processor is _workout_processor:
-            return f'{cmd}: 尚不支持此命令'
-        return f'{cmd}: {processor.help_msg}'
+            return f'{cmd_name}: 尚不支持此命令'
+        return f'{cmd_name}: {processor.help_msg}'
 
 
 @register_cmd('list', help_msg='显示支持的运动类型')
 @parser(pct)
 def list_workouts(cmd, _=None):
-    logging.info("supported workout types:")
+    names = '\n'.join(f'{w.name}: {w.description}' for w in m.Workout.query.all())
+    return names
 
 
 @register_cmd(help_msg='显示指定运动的教程')
@@ -132,6 +134,8 @@ def process(cmd_line: str):
 
 if __name__ == '__main__':
     import sys
-
-    logging.basicConfig(level=logging.DEBUG)
-    print(process(' '.join(sys.argv[1:])))
+    from .app import create_app
+    app = create_app()
+    with app.app_context():
+        logging.basicConfig(level=logging.DEBUG)
+        print(process(' '.join(sys.argv[1:])))
