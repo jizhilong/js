@@ -122,9 +122,24 @@ def hideme(cmd, _=None):
     return f"{g.user.name} 隐身模式开启"
 
 
+@register_cmd(help_msg='参与专项挑战')
 @parser(pct)
 def challenge(cmd, op_or_name=None):
     return f"challenge: {op_or_name}."
+
+
+@register_cmd('add-workout', help_msg='添加新的运动类型')
+@parser(pct)
+def add_workout_type(cmd, args: list = None):
+    if len(args) != 2:
+        return f'语法不正确，需要以"<name> <description>"形式提供'
+    if g.user.id > 3:
+        return '权限不足'
+    name, description = args
+    workout = m.Workout(name=name, description=description)
+    m.db.session.add(workout)
+    m.db.session.commit()
+    return f'成功添加: {name} - {description}'
 
 
 def is_workout_name(cmd):
