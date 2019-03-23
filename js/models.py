@@ -139,7 +139,19 @@ class WorkOutRecord(db.Model):
 class Challenge(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
+    description = db.Column(db.String(1024), default='')
+    closed = db.Column(db.Boolean, default=False)
     total = db.Column(db.Integer, nullable=False)
+
+    @staticmethod
+    def create_builtin_challenges():
+        challenges = [
+            Challenge(name='kbsw-10000', description='一万次壶铃摆荡', total=10000),
+            Challenge(name='pullup-1000', description='一千次引体', total=1000)
+        ]
+        for c in challenges:
+            db.session.add(c)
+        db.session.commit()
 
 
 def _latest_record_id():
@@ -297,3 +309,4 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all(app=app)
         Workout.create_builtin_workouts()
+        Challenge.create_builtin_challenges()

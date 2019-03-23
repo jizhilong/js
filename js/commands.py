@@ -8,6 +8,7 @@ from sqlalchemy import desc
 from .parsers import parse_command_with_records as pcr
 from .parsers import parse_command_with_text_arguments as pct
 from . import models as m
+from . import challenges as ch
 
 cmd_processors = []
 
@@ -125,7 +126,25 @@ def hideme(cmd, _=None):
 @register_cmd(help_msg='参与专项挑战')
 @parser(pct)
 def challenge(cmd, op_or_name=None):
-    return f"challenge: {op_or_name}."
+    op = None if len(op_or_name) == 0 else op_or_name[0]
+    if op is None:
+        has_challenge = len(g.user.challenges) != 0
+        if has_challenge:
+            return ch.show_challenge_progresses()
+        else:
+            return ch.list_challenges()
+    if op == 'list':
+        return ch.list_challenges()
+    if op == 'show':
+        return ch.show_challenge_progresses()
+
+    challenge_name = op
+    return ch.join_challenge(challenge_name)
+
+
+def is_legal_workout_name(name):
+    is_cmd_name = any(p.name == name for p in cmd_processors)
+    return not is_cmd_name and (name not in {'show', 'list'})
 
 
 @register_cmd('add-workout', help_msg='添加新的运动类型')
@@ -136,6 +155,8 @@ def add_workout_type(cmd, args: list = None):
     if g.user.id > 3:
         return '权限不足'
     name, description = args
+    if not is_legal_workout_name(name):
+        return f'{name} 不是合法的运动名'
     workout = m.Workout(name=name, description=description)
     m.db.session.add(workout)
     m.db.session.commit()
