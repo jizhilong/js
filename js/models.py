@@ -191,11 +191,7 @@ def add_record(user_or_name, workout_name, groups):
         user = user_or_name
     workout = Workout.query.filter_by(name=workout_name).first()
     if workout is None:
-        if user.id > 3:
-            raise JsError(f'项目: {workout_name} 不存在')
-        workout = Workout(name=workout_name)
-        db.session.add(workout)
-        db.session.flush()
+        raise JsError(f'项目: {workout_name} 不存在')
     dt = datetime.datetime.utcnow()
     for times in groups:
         record = WorkOutRecord(user_id=user.id, workout_id=workout.id, times=times, ts=dt)
@@ -270,6 +266,7 @@ def test_add_user():
 
 @_with_db
 def test_add_record():
+    Workout.create_builtin_workouts()
     add_record('user', 'kbsw-16', [50, 50, 50])
 
     user = User.query.filter_by(name='user').first()
@@ -292,6 +289,7 @@ def test_add_command():
 
 @_with_db
 def test_add_challenge_progress():
+    Workout.create_builtin_workouts()
     challenge = add_challenge('kbsw-10000', 10000)
     add_record('user', 'kbsw-16', [50, 50, 50])
     progress = add_challenge_progress('user', 'kbsw-10000')
