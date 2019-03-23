@@ -1,6 +1,7 @@
 import datetime
 
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
 
 db = SQLAlchemy()
 
@@ -58,11 +59,19 @@ class WorkOutRecord(db.Model):
 class Challenge(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
+    total = db.Column(db.Integer, nullable=False)
+
+
+def _latest_record_id():
+    return db.session.query(func.max(WorkOutRecord.id)).scalar() or 0
 
 
 class ChallengeProgress(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    achived = db.Column(db.Integer, nullable=False)
+    achieved = db.Column(db.Integer, nullable=False, default=0)
+    start_record_id = db.Column(db.Integer, nullable=True, default=_latest_record_id)
+    latest_record_id = db.Column(db.Integer, nullable=True, default=_latest_record_id)
+    memo = db.Column(db.String(2048), nullable=True)
 
     challenge_id = db.Column(db.Integer, db.ForeignKey('challenge.id'),
                              nullable=False)
@@ -103,6 +112,27 @@ def add_command(user_name, command_text):
     user, _ = get_or_create_user(user_name)
     user.commands.append(Command(text=command_text))
     db.session.commit()
+
+
+def add_challenge(name, total):
+    challenge = Challenge(name=name, total=total)
+    db.session.add(challenge)
+    db.session.commit()
+    return challenge
+
+
+def add_challenge_progress(user_name, challenge_name):
+    user, _ = get_or_create_user(user_name)
+    challenge = Challenge.query.filter_by(name=challenge_name).first()
+    if challenge is None:
+        raise JsError(f"不存在名为 {challenge_name} 的挑战")
+    progress = ChallengeProgress.query.filter_by(user_id=user.id, challenge_id=challenge.id).first()
+    if progress is not None:
+        raise JsError(f"{user_name} 已经参加了挑战 {challenge_name}")
+    progress = ChallengeProgress(user=user, challenge=challenge)
+    db.session.add(progress)
+    db.session.commit()
+    return progress
 
 
 def __init_db():
@@ -165,8 +195,15 @@ def test_add_command():
     assert user.commands[0].text == 'kbsw-16 50*5'
 
 
-def test():
-    test_add_user()
-    test_add_record()
-    test_add_command()
-    print("test finished")
+@_with_db
+def test_add_challenge_progress():
+    challenge = add_challenge('kbsw-10000', 10000)
+    add_record('user', 'kbsw-16', [50, 50, 50])
+    progress = add_challenge_progress('user', 'kbsw-10000')
+
+    assert progress.user.name == "user"
+    assert progress.challenge.name == challenge.name
+    assert progress.start_record_id == 3
+    assert progress.latest_record_id == 3
+    assert progress.achieved == 0
+
