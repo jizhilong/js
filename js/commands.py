@@ -1,6 +1,9 @@
+from datetime import datetime, timedelta
+import itertools
 import logging
 
 from flask import g
+from sqlalchemy import desc
 
 from .parsers import parse_command_with_records as pcr
 from .parsers import parse_command_with_text_arguments as pct
@@ -81,8 +84,26 @@ def tutorial(cmd, workout):
 
 @register_cmd(help_msg='显示最近运动记录')
 @parser(pct)
-def show(cmd, name=None):
-    return f"recent workout records for {name}:"
+def show(cmd, names: list = None):
+    if len(names) == 0:
+        return _show_records_for_user(g.user)
+    user_name = names[0]
+    user = m.User.query.filter_by(name=user_name).first()
+    if user is None or (user.invisible and g.user.id != user.id):
+        return f'不存在此用户: {user_name}'
+    return _show_records_for_user(user)
+
+
+def _show_records_for_user(user: m.User):
+    three_days_ago = datetime.utcnow() - timedelta(days=3)
+    records = m.WorkOutRecord.query.with_parent(user)\
+        .filter(m.WorkOutRecord.ts > three_days_ago)\
+        .order_by(desc(m.WorkOutRecord.ts))
+
+    groups = itertools.groupby(records, lambda r: (r.workout.description, r.ts.date().isoformat()))
+
+    return '\n'.join(f'{date} :: {description}: {[v.times for v in vars]}'
+                     for ((description, date), vars) in groups)
 
 
 @register_cmd(help_msg='显示运动排行榜')
@@ -93,8 +114,12 @@ def rank(cmd):
 
 @register_cmd(help_msg='开启隐身模式')
 @parser(pct)
-def hideme(cmd):
-    return f"I will hide you."
+def hideme(cmd, _=None):
+    print(g.user.invisible)
+    g.user.invisible = True
+    m.db.session.add(g.user)
+    m.db.session.commit()
+    return f"{g.user.name} 隐身模式开启"
 
 
 @parser(pct)
