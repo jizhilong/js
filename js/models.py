@@ -135,6 +135,9 @@ class WorkOutRecord(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'),
                         nullable=False)
 
+    def __repr__(self):
+        return '%s-%s' % (self.workout.description, self.times)
+
 
 class Challenge(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -152,6 +155,9 @@ class Challenge(db.Model):
         for c in challenges:
             db.session.add(c)
         db.session.commit()
+
+    def __repr__(self):
+        return f'{self.name}-{self.description}'
 
 
 def _latest_record_id():
@@ -193,10 +199,13 @@ def add_record(user_or_name, workout_name, groups):
     if workout is None:
         raise JsError(f'项目: {workout_name} 不存在')
     dt = datetime.datetime.utcnow()
+    records = []
     for times in groups:
         record = WorkOutRecord(user_id=user.id, workout_id=workout.id, times=times, ts=dt)
+        records.append(record)
         db.session.add(record)
-    db.session.commit()
+    db.session.flush()
+    return records
 
 
 def add_command(user_name, command_text):
@@ -212,15 +221,23 @@ def add_challenge(name, total):
     return challenge
 
 
-def add_challenge_progress(user_name, challenge_name):
-    user, _ = get_or_create_user(user_name)
-    challenge = Challenge.query.filter_by(name=challenge_name).first()
+def add_challenge_progress(user_or_name, challenge_or_name, **kwargs):
+    assert user_or_name is not None
+    assert challenge_or_name is not None
+    if isinstance(user_or_name, str):
+        user, _ = get_or_create_user(user_or_name)
+    else:
+        user = user_or_name
+    if isinstance(challenge_or_name, str):
+        challenge = Challenge.query.filter_by(name=challenge_or_name).first()
+    else:
+        challenge = challenge_or_name
     if challenge is None:
-        raise JsError(f"不存在名为 {challenge_name} 的挑战")
+        raise JsError(f"不存在名为 {challenge_or_name} 的挑战")
     progress = ChallengeProgress.query.filter_by(user_id=user.id, challenge_id=challenge.id).first()
     if progress is not None:
-        raise JsError(f"{user_name} 已经参加了挑战 {challenge_name}")
-    progress = ChallengeProgress(user=user, challenge=challenge)
+        raise JsError(f"{user_or_name} 已经参加了挑战 {challenge_or_name}")
+    progress = ChallengeProgress(user=user, challenge=challenge, **kwargs)
     db.session.add(progress)
     db.session.commit()
     return progress

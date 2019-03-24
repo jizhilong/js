@@ -103,8 +103,11 @@ def _show_records_for_user(user: m.User):
 
     groups = itertools.groupby(records, lambda r: (r.workout.description, r.ts.date().isoformat()))
 
-    return '\n'.join(f'{date} :: {description}: {[v.times for v in vars]}'
-                     for ((description, date), vars) in groups)
+    records_repr = '\n'.join(f'{date} :: {description}: {[v.times for v in vars]}'
+                             for ((description, date), vars) in groups)
+    if records_repr == '':
+        return f'{user.name} 还没有健身记录， 加油哦!'
+    return records_repr
 
 
 @register_cmd(help_msg='显示运动排行榜')
@@ -137,7 +140,9 @@ def challenge(cmd, op_or_name=None):
         return ch.list_challenges()
     if op == 'show':
         return ch.show_challenge_progresses()
-
+    if op == 'recalculate':
+        ch.recalculate_challenge_progress_for_user(g.user)
+        return ch.show_challenge_progresses()
     challenge_name = op
     return ch.join_challenge(challenge_name)
 
@@ -172,7 +177,9 @@ def is_workout_name(cmd):
 def workout(name, records):
     logging.info("add records %s of workout %s for user %s", records, name, g.user.name)
     try:
-        m.add_record(g.user, name, records)
+        saved_records = m.add_record(g.user, name, records)
+        ch.update_challenge_progress_for_user(g.user, saved_records)
+        m.db.session.commit()
     except m.JsError as error:
         return error.msg
     return f'{g.user.name} 新增运动记录 {name}: {records}'
