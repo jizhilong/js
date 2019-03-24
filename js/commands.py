@@ -182,7 +182,7 @@ def workout(name, records):
         m.db.session.commit()
     except m.JsError as error:
         return error.msg
-    return f'{g.user.name} 新增运动记录 {workout.description}: {records}'
+    return f'{g.user.name} 打卡:\n{workout.description}: {records}'
 
 
 _workout_processor = CmdRegisterItem(workout)
