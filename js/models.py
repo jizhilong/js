@@ -44,7 +44,7 @@ class Workout(db.Model):
     records = db.relationship('WorkOutRecord', backref='workout', lazy=True)
 
     def __repr__(self):
-        return '<WorkOut %r>' % self.name
+        return f'{self.name}-{self.description}'
 
     @staticmethod
     def create_builtin_workouts():
@@ -206,7 +206,7 @@ def add_record(user_or_name, workout_name, groups):
         records.append(record)
         db.session.add(record)
     db.session.flush()
-    return records
+    return records, workout
 
 
 def add_command(user_name, command_text):

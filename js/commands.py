@@ -177,12 +177,12 @@ def is_workout_name(cmd):
 def workout(name, records):
     logging.info("add records %s of workout %s for user %s", records, name, g.user.name)
     try:
-        saved_records = m.add_record(g.user, name, records)
+        saved_records, workout = m.add_record(g.user, name, records)
         ch.update_challenge_progress_for_user(g.user, saved_records)
         m.db.session.commit()
     except m.JsError as error:
         return error.msg
-    return f'{g.user.name} 新增运动记录 {name}: {records}'
+    return f'{g.user.name} 新增运动记录 {workout.description}: {records}'
 
 
 _workout_processor = CmdRegisterItem(workout)
