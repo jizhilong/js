@@ -3,9 +3,10 @@
 # author: Ji.Zhilong <zhilongji@gmail.com>
 # date: 17/03/2019
 
-from flask import request
+from flask import request, g, jsonify
 from .commands import find_processor
 from .app import create_app
+from . import models as m
 
 app = create_app()
 
@@ -18,16 +19,21 @@ def send_message(channel: str, message: str, *users: [str]):
     pass
 
 
-@app.route("/", methods=['POST'])
+@app.route("/js", methods=['POST'])
 def index():
     """
     receive POST from beary chat, dispatch to proper sub commands.
     """
     data = request.get_json()
     r = BearyChatRequest(data)
-    processor = find_processor(r.cmd)
-    response = processor(r.cmd)
-    return response
+    cmd, processor = find_processor(r.cmd)
+    response = {}
+    if processor is None:
+        response['text'] = f'不存在此命令: {cmd}'
+        return response
+    g.user, _ = m.get_or_create_user(r.user)
+    response['text'] = processor.process(r.cmd)
+    return jsonify(response)
 
 
 class BearyChatRequest:

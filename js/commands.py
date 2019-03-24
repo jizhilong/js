@@ -107,7 +107,7 @@ def _show_records_for_user(user: m.User):
                              for ((description, date), vars) in groups)
     if records_repr == '':
         return f'{user.name} 还没有健身记录， 加油哦!'
-    return records_repr
+    return f'{user.name} 最近的打卡记录:\n{records_repr}'
 
 
 @register_cmd(help_msg='显示运动排行榜')
