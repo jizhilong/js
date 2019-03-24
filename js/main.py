@@ -42,8 +42,8 @@ class BearyChatRequest:
         self.trigger_word = json['trigger_word']
         self.text = json['text']
         self.cmd = self.text.lstrip(self.trigger_word).strip()
-        self.channel = json['channel_name']
         self.user = json['user_name']
+        self.channel = json.get('channel_name')
         self.ts = json['ts']
 
 
