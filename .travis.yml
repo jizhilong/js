@@ -1,0 +1,12 @@
+sudo: required
+language: python
+python:
+  - "3.6"
+services:
+  - docker
+install:
+  - pip install -U pip
+  - pip install pipenv
+  - pipenv install
+script:
+  - pipenv run py.test js/*.py
