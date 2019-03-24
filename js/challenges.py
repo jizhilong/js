@@ -55,9 +55,12 @@ class KbswChallenge(ChallengeDef):
     """
     壶铃摆荡挑战
     """
+    def __init__(self, total):
+        self.total = total
 
     def match_challenge(self, challenge):
-        return challenge.name.startswith('kbsw')
+        return challenge.name.startswith('kbsw')\
+               and challenge.total == self.total
 
     def is_triggered(self, record):
         return record.workout.name.startswith('kbsw')
@@ -82,7 +85,8 @@ class KbswChallenge(ChallengeDef):
         return '壶铃摆荡挑战'
 
 
-definitions.append(KbswChallenge())
+definitions.extend([KbswChallenge(1000), KbswChallenge(3000),
+                    KbswChallenge(5000), KbswChallenge(10000)])
 
 
 class PullUpChallenge(ChallengeDef):
@@ -90,8 +94,12 @@ class PullUpChallenge(ChallengeDef):
     引体向上挑战
     """
 
+    def __init__(self, total):
+        self.total = total
+
     def match_challenge(self, challenge):
-        return challenge.name.startswith('pullup')
+        return challenge.name.startswith('pullup')\
+               and challenge.total == self.total
 
     def is_triggered(self, record):
         return record.workout.name == 'pullup'
@@ -116,7 +124,10 @@ class PullUpChallenge(ChallengeDef):
         return '引体向上挑战'
 
 
-definitions.append(PullUpChallenge())
+definitions.extend([PullUpChallenge(100), PullUpChallenge(300),
+                    PullUpChallenge(500), PullUpChallenge(1000),
+                    PullUpChallenge(3000), PullUpChallenge(5000),
+                    PullUpChallenge(10000)])
 
 
 def show_challenge_progresses():

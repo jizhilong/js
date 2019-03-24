@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
@@ -322,6 +323,9 @@ if __name__ == '__main__':
     from .app import create_app
     app = create_app()
     with app.app_context():
+        logging.info('创建数据库')
         db.create_all(app=app)
+        logging.info('添加内置运动类型')
         Workout.create_builtin_workouts()
+        logging.info('添加内置挑战类型')
         Challenge.create_builtin_challenges()
