@@ -101,10 +101,23 @@ def _show_records_for_user(user: m.User):
         .filter(m.WorkOutRecord.ts > three_days_ago)\
         .order_by(desc(m.WorkOutRecord.ts))
 
-    groups = itertools.groupby(records, lambda r: (r.workout.description, r.ts.date().isoformat()))
+    def group_key(r: m.WorkOutRecord):
+        return r.workout.description, r.ts.date().isoformat()
 
-    records_repr = '\n'.join(f'{date} :: {description}: {[v.times for v in vars]}'
-                             for ((description, date), vars) in groups)
+    def merge_records(sub_records):
+        lst = []
+        for i, sub_iter in itertools.groupby(r.times for r in sub_records):
+            count = len([_ for _ in sub_iter])
+            if count == 1:
+                lst.append(f'{i}')
+            else:
+                lst.append(f'{i}x{count}')
+        return ','.join(lst)
+
+    groups = itertools.groupby(records, group_key)
+
+    records_repr = '\n'.join(f'{date} :: {description}: {merge_records(sub_records)}'
+                             for ((description, date), sub_records) in groups)
     if records_repr == '':
         return f'{user.name} 还没有健身记录， 加油哦!'
     return f'{user.name} 最近的打卡记录:\n{records_repr}'
