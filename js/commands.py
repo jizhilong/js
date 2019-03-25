@@ -70,11 +70,44 @@ def help_cmd(cmd, args: list = None):
         return f'{cmd_name}: {processor.help_msg}'
 
 
-@register_cmd('list', help_msg='显示支持的运动类型')
+def longest_common_suffix(s1: str, s2: str):
+    l1, l2 = len(s1), len(s2)
+    i = min(len(s1), len(s2))
+    while i > 0 and s1[l1-i:] != s2[l2-i:]:
+        i -= 1
+    return s1[l1-i:]
+
+
+def merge_name(prefix, workouts):
+    suffixes = '|'.join(w.name.lstrip(prefix) for w in workouts)
+    return f'{prefix}[{suffixes}]'
+
+
+def merge_description(workouts):
+    descriptions = [w.description for w in workouts]
+    common = descriptions[0]
+    for description in descriptions[1:]:
+        common = longest_common_suffix(common, description)
+    prefixes = '|'.join(d.rstrip(common) for d in descriptions)
+    return f'[{prefixes}]{common}'
+
+
+@register_cmd('list', help_msg='列出所有支持的运动项目')
 @parser(pct)
 def list_workouts(cmd, _=None):
-    names = '\n'.join(f'{w.name}: {w.description}' for w in m.Workout.query.all())
-    return names
+    workouts = [w for w in m.Workout.query.all()]
+    workouts.sort(key=lambda w: w.name)
+    names = []
+    for name, group in itertools.groupby(workouts,
+                                         lambda w: w.name.split('-', 1)[0]):
+        group_workouts = [w for w in group]
+        if len(group_workouts) == 1:
+            names.append(f'{group_workouts[0].name}: {group_workouts[0].description}')
+        else:
+            merged_name = merge_name(name, group_workouts)
+            merged_description = merge_description(group_workouts)
+            names.append(f'{merged_name}: {merged_description}')
+    return '\n'.join(names)
 
 
 @register_cmd(help_msg='显示指定运动的教程')
