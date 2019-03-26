@@ -110,7 +110,7 @@ def list_workouts(cmd, _=None):
             merged_description = merge_description(group_workouts)
             names.append(f'{merged_name}: {merged_description}')
     names = '\n'.join(names)
-    return f'```\n{names}```'
+    return f'```\n{names}\n```'
 
 
 @register_cmd(help_msg='显示指定运动的教程')
