@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import itertools
 import logging
+import string
 
 from flask import g
 from sqlalchemy import desc
@@ -88,6 +89,7 @@ def merge_description(workouts):
     common = descriptions[0]
     for description in descriptions[1:]:
         common = longest_common_suffix(common, description)
+    common = common.lstrip(string.digits)
     prefixes = '|'.join(d.rstrip(common) for d in descriptions)
     return f'[{prefixes}]{common}'
 
