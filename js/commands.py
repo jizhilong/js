@@ -119,23 +119,42 @@ def tutorial(cmd, workout):
     return f"this is tutorial for {workout}"
 
 
+_default_show_days = 3
+
+
+def _parse_days(days_str: str):
+    try:
+        if days_str.isdecimal():
+            return int(days_str)
+    except ValueError:
+        return _default_show_days
+    return _default_show_days
+
+
 @register_cmd(help_msg='显示最近运动记录')
 @parser(pct)
 def show(cmd, names: list = None):
     if len(names) == 0:
-        return _show_records_for_user(g.user)
-    user_name = names[0]
+        return _show_records_for_user(g.user, _default_show_days)
+
+    user_name, days = names[0], _default_show_days
+    if len(names) == 1 and user_name.isdecimal():
+        return _show_records_for_user(g.user, _parse_days(names[0]))
+
+    if len(names) >= 2:
+        days = _parse_days(names[1])
     user = m.User.query.filter_by(name=user_name).first()
     if user is None or (user.invisible and g.user.id != user.id):
         return f'不存在此用户: {user_name}'
-    return _show_records_for_user(user)
+    return _show_records_for_user(user, days)
 
 
-def _show_records_for_user(user: m.User):
-    three_days_ago = datetime.utcnow() - timedelta(days=3)
+def _show_records_for_user(user: m.User, days: int):
+    days_ago = datetime.utcnow() - timedelta(days=days)
     records = m.WorkOutRecord.query.with_parent(user)\
-        .filter(m.WorkOutRecord.ts > three_days_ago)\
-        .order_by(desc(m.WorkOutRecord.ts))
+        .filter(m.WorkOutRecord.ts > days_ago) \
+        .order_by(desc(m.WorkOutRecord.ts)) \
+        .limit(1000)
 
     def group_key(r: m.WorkOutRecord):
         return r.workout.description, r.ts.date().isoformat()
@@ -155,8 +174,8 @@ def _show_records_for_user(user: m.User):
     records_repr = '\n'.join(f'{date} :: {description}: {merge_records(sub_records)}'
                              for ((description, date), sub_records) in groups)
     if records_repr == '':
-        return f'{user.name} 还没有健身记录， 加油哦!'
-    return f'{user.name} 最近的打卡记录:\n{records_repr}'
+        return f'{user.name} 最近{days}天没有健身记录， 加油哦!'
+    return f'{user.name} 最近{days}天的打卡记录:\n{records_repr}'
 
 
 @register_cmd(help_msg='显示运动排行榜')
