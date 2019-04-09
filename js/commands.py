@@ -284,3 +284,4 @@ if __name__ == '__main__':
         g.user, _ = m.get_or_create_user(os.environ.get('USER'))
         logging.basicConfig(level=logging.DEBUG)
         print(process(' '.join(sys.argv[1:])))
+        m.db.session.commit()

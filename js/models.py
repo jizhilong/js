@@ -121,7 +121,8 @@ class Workout(db.Model):
         ]
 
         for workout in workouts:
-            db.session.add(workout)
+            if Workout.query.filter_by(name=workout.name).first() is None:
+                db.session.add(workout)
         db.session.commit()
 
 
@@ -151,10 +152,14 @@ class Challenge(db.Model):
     def create_builtin_challenges():
         challenges = [
             Challenge(name='kbsw-10000', description='一万次壶铃摆荡', total=10000),
-            Challenge(name='pullup-1000', description='一千次引体向上', total=1000)
+            Challenge(name='pullup-1000', description='一千次引体向上', total=1000),
+            Challenge(name='squat-50', description='累计深蹲50吨', total=50*1000),
+            Challenge(name='squat-100', description='累计深蹲100吨', total=100*1000),
+            Challenge(name='squat-200', description='累计深蹲200吨', total=200*1000),
         ]
         for c in challenges:
-            db.session.add(c)
+            if Challenge.query.filter_by(name=c.name).first() is None:
+                db.session.add(c)
         db.session.commit()
 
     def __repr__(self):

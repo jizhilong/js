@@ -121,13 +121,56 @@ class PullUpChallenge(ChallengeDef):
             return f'👍恭喜{user}完成{desc} :: {achieved}/{total}'
 
     def __str__(self):
-        return '引体向上挑战'
+        return '引体向上%s次挑战' % self.total
 
 
 definitions.extend([PullUpChallenge(100), PullUpChallenge(300),
                     PullUpChallenge(500), PullUpChallenge(1000),
                     PullUpChallenge(3000), PullUpChallenge(5000),
                     PullUpChallenge(10000)])
+
+
+class SquatChanllenge(ChallengeDef):
+    """
+    深蹲挑战
+    """
+    def __init__(self, total):
+        self.total = total * 1000
+
+    def match_challenge(self, challenge):
+        return challenge.name.startswith('squat') \
+               and challenge.total == self.total
+
+    def is_triggered(self, record):
+        workout_name = record.workout.name
+        parts = workout_name.split('-', 1)
+        return len(parts) >= 2 and parts[0] == 'squat' and parts[1].isdecimal()
+
+    def initial(self):
+        return {}
+
+    def on_update(self, progress, record):
+        parts = record.workout.name.split('-', 1)
+        kilo = int(parts[1]) * record.times
+        progress.achieved = progress.achieved + kilo
+
+    def repr(self, progress):
+        achieved = progress.achieved / 1000.
+        total = progress.challenge.total / 1000.
+        desc = progress.challenge.description
+        user = progress.user.name
+        if achieved < total:
+            return f'💪️{user} {desc} :: {achieved}/{total}'
+        else:
+            return f'👍恭喜{user}完成{desc} :: {achieved}/{total}'
+
+    def __str__(self):
+        return '累计负重深蹲%s吨挑战' % (self.total / 1000)
+
+
+definitions.extend([SquatChanllenge(50), SquatChanllenge(100),
+                    SquatChanllenge(200), SquatChanllenge(400),
+                    SquatChanllenge(800)])
 
 
 def show_challenge_progresses():
