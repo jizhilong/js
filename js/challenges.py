@@ -102,7 +102,7 @@ class PullUpChallenge(ChallengeDef):
                and challenge.total == self.total
 
     def is_triggered(self, record):
-        return record.workout.name == 'pullup'
+        return record.workout.name.startswith('pullup')
 
     def initial(self):
         return {}
