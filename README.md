@@ -7,10 +7,13 @@
 - !js tutorial pullup # 显示一条引体向上的视频教程
 
 ### 信息查询类
-- !js show # 显示我最近的健身记录
-- !js show ycqian # 显示ycqian最近的健身记录
+- !js show # 显示我最近3天的健身记录
+- !js show 10 # 显示我最近10天的健身记录
+- !js show ycqian # 显示ycqian最近3天的健身记录
+- !js show ycqian 7 # 显示ycqian最近7天的健身记录
 - !js rank # 列出健身排行榜前十
 - !js hideme # 我害羞，我想隐身，不要让其他人查到我的健身记录，也不要让我参与排行榜竞争
+- !js hideme off # 关闭隐身模式
 
 ### 打卡类
 - !js kbs-24 50 # 24公斤-壶铃摆荡，1组50次
@@ -21,7 +24,8 @@
 ### 挑战类
 - !js challenge list # 列出支持的挑战项目
 - !js challenge kbs-10000 # 参与10000次壶铃摆荡挑战
-- !js challenge show # 显式我参与的挑战项目及进度
+- !js challenge show # 显示我参与的挑战项目及进度
+- !js challenge recalculate # 重新计算/校准挑战进度
 
 ## 内置健身项目
 ### 自重类

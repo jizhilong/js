@@ -186,12 +186,17 @@ def rank(cmd):
 
 @register_cmd(help_msg='开启隐身模式')
 @parser(pct)
-def hideme(cmd, _=None):
-    print(g.user.invisible)
-    g.user.invisible = True
+def hideme(cmd, args=None):
+    invisible = True
+    if len(args) == 1 and args[0] == 'off':
+        invisible = False
+    g.user.invisible = invisible
     m.db.session.add(g.user)
     m.db.session.commit()
-    return f"{g.user.name} 隐身模式开启"
+    if invisible:
+        return f"{g.user.name} 隐身模式开启"
+    else:
+        return f"{g.user.name} 隐身模式关闭"
 
 
 @register_cmd(help_msg='参与专项挑战')
