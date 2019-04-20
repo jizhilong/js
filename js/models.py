@@ -176,6 +176,7 @@ class ChallengeProgress(db.Model):
     start_record_id = db.Column(db.Integer, nullable=True, default=_latest_record_id)
     latest_record_id = db.Column(db.Integer, nullable=True, default=_latest_record_id)
     memo = db.Column(db.String(2048), nullable=True)
+    finished = db.Column(db.Boolean, default=False)
 
     challenge_id = db.Column(db.Integer, db.ForeignKey('challenge.id'),
                              nullable=False)

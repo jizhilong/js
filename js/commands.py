@@ -237,7 +237,6 @@ def add_workout_type(cmd, args: list = None):
         return f'{name} 不是合法的运动名'
     workout = m.Workout(name=name, description=description)
     m.db.session.add(workout)
-    m.db.session.commit()
     return f'成功添加: {name} - {description}'
 
 
@@ -251,11 +250,16 @@ def workout(name, records):
     logging.info("add records %s of workout %s for user %s", records, name, g.user.name)
     try:
         saved_records, workout = m.add_record(g.user, name, records)
-        ch.update_challenge_progress_for_user(g.user, saved_records)
-        m.db.session.commit()
+        updated_progresses =\
+            ch.update_challenge_progress_for_user(g.user, saved_records)
     except m.JsError as error:
         return error.msg
-    return f'{g.user.name} 打卡:\n{workout.description}: {records}'
+    record_message = f'{g.user.name} 打卡:\n{workout.description}: {records}'
+    if len(updated_progresses) == 0:
+        return record_message
+    else:
+        return f'{record_message}\n' \
+               f'{ch.show_challenge_progresses(updated_progresses)}'
 
 
 _workout_processor = CmdRegisterItem(workout)

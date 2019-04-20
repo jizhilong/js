@@ -69,7 +69,12 @@ class KbswChallenge(ChallengeDef):
         return {}
 
     def on_update(self, progress, record):
+        if progress.achieved >= self.total:
+            return False
         progress.achieved = progress.achieved + record.times
+        if progress.achieved >= self.total:
+            progress.finished = True
+        return True
 
     def repr(self, progress):
         achieved = progress.achieved
@@ -108,7 +113,12 @@ class PullUpChallenge(ChallengeDef):
         return {}
 
     def on_update(self, progress, record):
+        if progress.achieved >= self.total:
+            return False
         progress.achieved = progress.achieved + record.times
+        if progress.achieved >= self.total:
+            progress.finished = True
+        return True
 
     def repr(self, progress):
         achieved = progress.achieved
@@ -150,9 +160,14 @@ class SquatChanllenge(ChallengeDef):
         return {}
 
     def on_update(self, progress, record):
+        if progress.achieved >= self.total:
+            return False
         parts = record.workout.name.split('-', 1)
         kilo = int(parts[1]) * record.times
         progress.achieved = progress.achieved + kilo
+        if progress.achieved >= self.total:
+            progress.finished = True
+        return True
 
     def repr(self, progress):
         achieved = progress.achieved / 1000.
@@ -173,9 +188,11 @@ definitions.extend([SquatChanllenge(50), SquatChanllenge(100),
                     SquatChanllenge(800)])
 
 
-def show_challenge_progresses():
-    user: m.User = g.user
-    challenges = user.challenges
+def show_challenge_progresses(challenges=None):
+    if challenges is None:
+        user: m.User = g.user
+        challenges = user.challenges
+
     if len(challenges) == 0:
         return f'{user.name} 没有参加任何挑战'
 
@@ -212,15 +229,21 @@ def join_challenge(challenge_name):
 
 
 def update_challenge_progress_for_user(user, records: list):
+    updated_progresses = []
     for progress in user.challenges:
         challenge = progress.challenge
         definition = ChallengeDef.find_def(challenge)
         if definition is None:
             logging.warn('no definition found for %s', challenge)
             continue
+        updated = False
         for record in records:
-            update_progress(user, progress, record, definition)
+            updated = update_progress(user, progress, record, definition)\
+                      or updated
+        if updated:
+            updated_progresses.append(progress)
         m.db.session.add(progress)
+    return updated_progresses
 
 
 def recalculate_challenge_progress_for_user(user):
@@ -250,11 +273,14 @@ def recalculate_challenge_progress_for_user(user):
 
 
 def update_progress(user, progress, record, definition):
+    if progress.finished:
+        return False
     if not definition.is_triggered(record):
-        return
+        return False
     before_change = definition.repr(progress)
-    definition.on_update(progress, record)
+    updated = definition.on_update(progress, record)
     progress.latest_record_id = record.id
     after_change = definition.repr(progress)
     logging.info('update progress of %s from %s to %s with %s',
                  user.name, before_change, after_change, record)
+    return updated
