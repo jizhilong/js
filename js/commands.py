@@ -237,6 +237,7 @@ def add_workout_type(cmd, args: list = None):
         return f'{name} 不是合法的运动名'
     workout = m.Workout(name=name, description=description)
     m.db.session.add(workout)
+    m.db.session.commit()
     return f'成功添加: {name} - {description}'
 
 
@@ -252,6 +253,7 @@ def workout(name, records):
         saved_records, workout = m.add_record(g.user, name, records)
         updated_progresses =\
             ch.update_challenge_progress_for_user(g.user, saved_records)
+        m.db.session.commit()
     except m.JsError as error:
         return error.msg
     record_message = f'{g.user.name} 打卡:\n{workout.description}: {records}'
