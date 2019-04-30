@@ -315,6 +315,7 @@ def recalculate_challenge_progress_for_user(user):
             continue
         to_update = definition.initial()
         to_update['achieved'] = 0
+        to_update['finished'] = False
         start_record_id = progress.start_record_id
         to_update['latest_record_id'] = start_record_id
         for k, v in to_update.items():

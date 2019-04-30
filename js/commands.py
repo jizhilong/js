@@ -215,6 +215,7 @@ def challenge(cmd, op_or_name=None):
         return ch.show_challenge_progresses()
     if op == 'recalculate':
         ch.recalculate_challenge_progress_for_user(g.user)
+        m.db.session.commit()
         return ch.show_challenge_progresses()
     challenge_name = op
     return ch.join_challenge(challenge_name)
