@@ -174,8 +174,8 @@ def _show_records_for_user(user: m.User, days: int):
     records_repr = '\n'.join(f'{date} :: {description}: {merge_records(sub_records)}'
                              for ((description, date), sub_records) in groups)
     if records_repr == '':
-        return f'{user.name} 最近{days}天没有健身记录， 加油哦!'
-    return f'{user.name} 最近{days}天的打卡记录:\n{records_repr}'
+        return f'{user} 最近{days}天没有健身记录， 加油哦!'
+    return f'{user} 最近{days}天的打卡记录:\n{records_repr}'
 
 
 @register_cmd(help_msg='显示运动排行榜')
@@ -194,9 +194,9 @@ def hideme(cmd, args=None):
     m.db.session.add(g.user)
     m.db.session.commit()
     if invisible:
-        return f"{g.user.name} 隐身模式开启"
+        return f"{g.user} 隐身模式开启"
     else:
-        return f"{g.user.name} 隐身模式关闭"
+        return f"{g.user} 隐身模式关闭"
 
 
 @register_cmd(help_msg='参与专项挑战')
@@ -256,7 +256,7 @@ def workout(name, records):
         m.db.session.commit()
     except m.JsError as error:
         return error.msg
-    record_message = f'{g.user.name} 打卡:\n{workout.description}: {records}'
+    record_message = f'{g.user} 打卡:\n{workout.description}: {records}'
     if len(updated_progresses) == 0:
         return record_message
     else:

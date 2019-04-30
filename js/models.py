@@ -25,7 +25,22 @@ class User(db.Model):
     commands = db.relationship('Command', backref='user', lazy=True)
 
     def __repr__(self):
-        return '<User %r>' % self.name
+        return f'{self.name}{self.badges}'
+
+    @property
+    def badges(self):
+        finished_challenge_no = ChallengeProgress.query\
+            .with_parent(self).filter_by(finished=True).count()
+        badge = '🏋'
+        numbers = '⓪①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳㉑㉒㉓㉔㉕㉖㉗㉘㉙㉚㉛㉜㉝㉞㉟㊱㊲㊳㊴㊵㊶㊷㊸㊹㊺㊻㊼㊽㊾㊿'
+        if finished_challenge_no == 0:
+            return ''
+        if finished_challenge_no < 3:
+            return badge*finished_challenge_no
+        if finished_challenge_no < len(numbers):
+            return badge + numbers[finished_challenge_no]
+        return badge + f'^{finished_challenge_no}'
+
 
 
 class Command(db.Model):
