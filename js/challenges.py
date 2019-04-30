@@ -80,7 +80,7 @@ class KbswChallenge(ChallengeDef):
         achieved = progress.achieved
         total = progress.challenge.total
         desc = progress.challenge.description
-        user = progress.user.name
+        user = progress.user
         if achieved < total:
             return f'💪️{user} {desc} :: {achieved}/{total}'
         else:
@@ -173,7 +173,7 @@ class SquatChanllenge(ChallengeDef):
         achieved = progress.achieved / 1000.
         total = progress.challenge.total / 1000.
         desc = progress.challenge.description
-        user = progress.user.name
+        user = progress.user
         if achieved < total:
             return f'💪️{user} {desc} :: {achieved}/{total}'
         else:
@@ -225,7 +225,7 @@ def join_challenge(challenge_name):
     if definition is None:
         return f'抱歉，挑战活动-{challenge.description} 的规则还没有开发完成.'
     m.add_challenge_progress(g.user, challenge, **definition.initial())
-    return f'{g.user.name} 开始挑战 {challenge.description}'
+    return f'{g.user} 开始挑战 {challenge.description}'
 
 
 def update_challenge_progress_for_user(user, records: list):
