@@ -170,6 +170,9 @@ class Challenge(db.Model):
             Challenge(name='squat-50', description='累计深蹲50吨', total=50*1000),
             Challenge(name='squat-100', description='累计深蹲100吨', total=100*1000),
             Challenge(name='squat-200', description='累计深蹲200吨', total=200*1000),
+            Challenge(name='workout-30d', description='连续打卡30天', total=30),
+            Challenge(name='workout-60d', description='连续打卡60天', total=60),
+            Challenge(name='workout-100d', description='连续打卡100天', total=100),
         ]
         for c in challenges:
             if Challenge.query.filter_by(name=c.name).first() is None:

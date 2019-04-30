@@ -1,3 +1,4 @@
+from datetime import timedelta
 import logging
 
 
@@ -186,6 +187,62 @@ class SquatChanllenge(ChallengeDef):
 definitions.extend([SquatChanllenge(50), SquatChanllenge(100),
                     SquatChanllenge(200), SquatChanllenge(400),
                     SquatChanllenge(800)])
+
+
+class ContinuousWorkoutChallenge(ChallengeDef):
+    """
+    连续打卡挑战
+    """
+    def __init__(self, total):
+        self.total = total
+
+    def match_challenge(self, challenge):
+        return challenge.name.startswith('workout') \
+               and challenge.total == self.total
+
+    def is_triggered(self, record):
+        return True
+
+    def initial(self):
+        return {}
+
+    def on_update(self, progress, record):
+        if progress.achieved >= self.total:
+            return False
+        latest_record = m.WorkOutRecord.query\
+            .filter_by(id=progress.latest_record_id).first()
+        if latest_record is None:
+            progress.achieved = 1
+            return True
+        if latest_record.ts.date() == record.ts.date():
+            return True
+        delta = record.ts - latest_record.ts
+        if delta < timedelta(days=2):
+            progress.achieved += 1
+            if progress.achieved >= self.total:
+                progress.finished = True
+            return True
+        logging.info('休息时间超过48小时 %s', delta)
+        progress.achieved = 1
+        return True
+
+    def repr(self, progress):
+        achieved = progress.achieved
+        total = progress.challenge.total
+        desc = progress.challenge.description
+        user = progress.user
+        if achieved < total:
+            return f'💪️{user} {desc} :: {achieved}/{total}'
+        else:
+            return f'👍恭喜{user}完成{desc} :: {achieved}/{total}'
+
+    def __str__(self):
+        return '连续打卡%s天挑战' % self.total
+
+
+definitions.extend([ContinuousWorkoutChallenge(30),
+                    ContinuousWorkoutChallenge(60),
+                    ContinuousWorkoutChallenge(100)])
 
 
 def show_challenge_progresses(challenges=None):
