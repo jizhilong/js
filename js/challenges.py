@@ -124,7 +124,7 @@ class PullUpChallenge(ChallengeDef):
         achieved = progress.achieved
         total = progress.challenge.total
         desc = progress.challenge.description
-        user = progress.user.name
+        user = progress.user
         if achieved < total:
             return f'💪️{user} {desc} :: {achieved}/{total}'
         else:

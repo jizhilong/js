@@ -42,7 +42,6 @@ class User(db.Model):
         return badge + f'^{finished_challenge_no}'
 
 
-
 class Command(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(128), nullable=False)
