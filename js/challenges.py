@@ -215,6 +215,9 @@ class ContinuousWorkoutChallenge(ChallengeDef):
             progress.achieved = 1
             return True
         if latest_record.ts.date() == record.ts.date():
+            # hotfix(initial challange join)
+            if progress.achieved == 0:
+                progress.achieved += 1
             return True
         delta = record.ts - latest_record.ts
         if delta < timedelta(days=2):
