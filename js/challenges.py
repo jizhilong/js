@@ -141,6 +141,98 @@ definitions.extend([PullUpChallenge(100), PullUpChallenge(300),
                     PullUpChallenge(10000)])
 
 
+class PbPressChallenge(ChallengeDef):
+    """
+    双杠臂屈伸挑战
+    """
+
+    def __init__(self, total):
+        self.total = total
+
+    def match_challenge(self, challenge):
+        return challenge.name.startswith('pbpress') \
+               and challenge.total == self.total
+
+    def is_triggered(self, record):
+        return record.workout.name.startswith('pbpress')
+
+    def initial(self):
+        return {}
+
+    def on_update(self, progress, record):
+        if progress.achieved >= self.total:
+            return False
+        progress.achieved = progress.achieved + record.times
+        if progress.achieved >= self.total:
+            progress.finished = True
+        return True
+
+    def repr(self, progress):
+        achieved = progress.achieved
+        total = progress.challenge.total
+        desc = progress.challenge.description
+        user = progress.user
+        if achieved < total:
+            return f'💪️{user} {desc} :: {achieved}/{total}'
+        else:
+            return f'👍恭喜{user}完成{desc} :: {achieved}/{total}'
+
+    def __str__(self):
+        return '双杠臂屈伸%s次挑战' % self.total
+
+
+definitions.extend([
+                    PbPressChallenge(500), PbPressChallenge(1000),
+                    PbPressChallenge(3000), PbPressChallenge(5000),
+                    PbPressChallenge(10000)])
+
+
+class MuscleUpChallenge(ChallengeDef):
+    """
+    双力臂挑战
+    """
+
+    def __init__(self, total):
+        self.total = total
+
+    def match_challenge(self, challenge):
+        return challenge.name.startswith('muscleup') \
+               and challenge.total == self.total
+
+    def is_triggered(self, record):
+        return record.workout.name.startswith('muscleup')
+
+    def initial(self):
+        return {}
+
+    def on_update(self, progress, record):
+        if progress.achieved >= self.total:
+            return False
+        progress.achieved = progress.achieved + record.times
+        if progress.achieved >= self.total:
+            progress.finished = True
+        return True
+
+    def repr(self, progress):
+        achieved = progress.achieved
+        total = progress.challenge.total
+        desc = progress.challenge.description
+        user = progress.user
+        if achieved < total:
+            return f'💪️{user} {desc} :: {achieved}/{total}'
+        else:
+            return f'👍恭喜{user}完成{desc} :: {achieved}/{total}'
+
+    def __str__(self):
+        return '双力臂%s次挑战' % self.total
+
+
+definitions.extend([
+    MuscleUpChallenge(500), MuscleUpChallenge(1000)
+])
+
+
+
 class SquatChanllenge(ChallengeDef):
     """
     深蹲挑战
