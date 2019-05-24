@@ -1,12 +1,10 @@
 from datetime import timedelta
 import logging
 
-
 from flask import g
 from sqlalchemy import asc
 
 from . import models as m
-
 
 definitions = []
 
@@ -56,11 +54,12 @@ class KbswChallenge(ChallengeDef):
     """
     壶铃摆荡挑战
     """
+
     def __init__(self, total):
         self.total = total
 
     def match_challenge(self, challenge):
-        return challenge.name.startswith('kbsw')\
+        return challenge.name.startswith('kbsw') \
                and challenge.total == self.total
 
     def is_triggered(self, record):
@@ -104,7 +103,7 @@ class PullUpChallenge(ChallengeDef):
         self.total = total
 
     def match_challenge(self, challenge):
-        return challenge.name.startswith('pullup')\
+        return challenge.name.startswith('pullup') \
                and challenge.total == self.total
 
     def is_triggered(self, record):
@@ -182,9 +181,9 @@ class PbPressChallenge(ChallengeDef):
 
 
 definitions.extend([
-                    PbPressChallenge(500), PbPressChallenge(1000),
-                    PbPressChallenge(3000), PbPressChallenge(5000),
-                    PbPressChallenge(10000)])
+    PbPressChallenge(500), PbPressChallenge(1000),
+    PbPressChallenge(3000), PbPressChallenge(5000),
+    PbPressChallenge(10000)])
 
 
 class MuscleUpChallenge(ChallengeDef):
@@ -232,11 +231,11 @@ definitions.extend([
 ])
 
 
-
 class SquatChanllenge(ChallengeDef):
     """
     深蹲挑战
     """
+
     def __init__(self, total):
         self.total = total * 1000
 
@@ -247,7 +246,9 @@ class SquatChanllenge(ChallengeDef):
     def is_triggered(self, record):
         workout_name = record.workout.name
         parts = workout_name.split('-', 1)
-        return len(parts) >= 2 and parts[0] == 'squat' and parts[1].isdecimal()
+        return len(parts) >= 2 \
+            and parts[0] in ('squat', 'kbsq') \
+            and parts[1].isdecimal()
 
     def initial(self):
         return {}
@@ -285,6 +286,7 @@ class ContinuousWorkoutChallenge(ChallengeDef):
     """
     连续打卡挑战
     """
+
     def __init__(self, total):
         self.total = total
 
@@ -301,7 +303,7 @@ class ContinuousWorkoutChallenge(ChallengeDef):
     def on_update(self, progress, record):
         if progress.achieved >= self.total:
             return False
-        latest_record = m.WorkOutRecord.query\
+        latest_record = m.WorkOutRecord.query \
             .filter_by(id=progress.latest_record_id).first()
         if latest_record is None:
             progress.achieved = 1
@@ -365,11 +367,11 @@ def list_challenges():
 
 
 def join_challenge(challenge_name):
-    challenge = m.Challenge.query\
+    challenge = m.Challenge.query \
         .filter_by(closed=False, name=challenge_name).first()
     if challenge is None:
         return f'不存在该挑战项目: {challenge_name}'
-    joined = m.ChallengeProgress.query.with_parent(g.user)\
+    joined = m.ChallengeProgress.query.with_parent(g.user) \
         .filter_by(challenge_id=challenge.id).first()
     if joined is not None:
         return f'{g.user.name} 已经参加了挑战-{challenge.description}'
@@ -391,7 +393,7 @@ def update_challenge_progress_for_user(user, records: list):
             continue
         updated = False
         for record in records:
-            updated = update_progress(user, progress, record, definition)\
+            updated = update_progress(user, progress, record, definition) \
                       or updated
         if updated:
             updated_progresses.append(progress)
@@ -416,9 +418,9 @@ def recalculate_challenge_progress_for_user(user):
         m.db.session.add(progress)
         m.db.session.flush()
 
-        records = m.WorkOutRecord.query\
-            .with_parent(user)\
-            .filter(m.WorkOutRecord.id > start_record_id)\
+        records = m.WorkOutRecord.query \
+            .with_parent(user) \
+            .filter(m.WorkOutRecord.id > start_record_id) \
             .order_by(asc(m.WorkOutRecord.id))
 
         for record in records:
