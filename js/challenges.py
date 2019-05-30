@@ -372,7 +372,7 @@ def join_challenge(challenge_name):
     if challenge is None:
         return f'不存在该挑战项目: {challenge_name}'
     joined = m.ChallengeProgress.query.with_parent(g.user) \
-        .filter_by(challenge_id=challenge.id).first()
+        .filter_by(challenge_id=challenge.id, finished=False).first()
     if joined is not None:
         return f'{g.user.name} 已经参加了挑战-{challenge.description}'
 

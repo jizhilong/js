@@ -260,7 +260,9 @@ def add_challenge_progress(user_or_name, challenge_or_name, **kwargs):
         challenge = challenge_or_name
     if challenge is None:
         raise JsError(f"不存在名为 {challenge_or_name} 的挑战")
-    progress = ChallengeProgress.query.filter_by(user_id=user.id, challenge_id=challenge.id).first()
+    progress = ChallengeProgress.query.filter_by(user_id=user.id,
+                                                 challenge_id=challenge.id,
+                                                 finished=False).first()
     if progress is not None:
         raise JsError(f"{user_or_name} 已经参加了挑战 {challenge_or_name}")
     progress = ChallengeProgress(user=user, challenge=challenge, **kwargs)
