@@ -166,6 +166,7 @@ class Challenge(db.Model):
     def create_builtin_challenges():
         challenges = [
             Challenge(name='kbsw-10000', description='一万次壶铃摆荡', total=10000),
+            Challenge(name='pullup-500', description='五百次引体向上', total=500),
             Challenge(name='pullup-1000', description='一千次引体向上', total=1000),
             Challenge(name='squat-50', description='累计深蹲50吨', total=50*1000),
             Challenge(name='squat-100', description='累计深蹲100吨', total=100*1000),
