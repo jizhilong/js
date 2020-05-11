@@ -62,7 +62,7 @@ def _do_process_telegram():
         logging.warning("not valid telegram bot command request: " + reason)
         return
     cmd, processor = find_processor(r.cmd)
-    response = {'chat_id': r.chat, 'reply_to_message_id': r.message_id}
+    response = {'chat_id': r.chat, 'reply_to_message_id': r.message_id, 'parse_mode': 'Markdown'}
     if processor is None:
         response['text'] = f'不存在此命令: {cmd}'
         return response
