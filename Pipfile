@@ -4,6 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+requests="*"
 Flask="==1.0.2"
 flask-db-tools="==0.0.2"
 flask-script ="==2.0.6"

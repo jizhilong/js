@@ -349,7 +349,7 @@ def show_challenge_progresses(challenges=None):
         challenges = user.challenges
 
     if len(challenges) == 0:
-        return f'{user.name} 没有参加任何挑战'
+        return f'{g.user_name} 没有参加任何挑战'
 
     progresses = []
     for ch in challenges:
@@ -374,7 +374,7 @@ def join_challenge(challenge_name):
     joined = m.ChallengeProgress.query.with_parent(g.user) \
         .filter_by(challenge_id=challenge.id, finished=False).first()
     if joined is not None:
-        return f'{g.user.name} 已经参加了挑战-{challenge.description}'
+        return f'{g.user_name} 已经参加了挑战-{challenge.description}'
 
     definition = ChallengeDef.find_def(challenge)
     if definition is None:

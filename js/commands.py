@@ -205,7 +205,7 @@ def rename(cmd, args=None):
     if not args:
         return f"正确语法是: !js rename <new-name>"
     new_name = args[0]
-    original_name = g.user.name
+    original_name = g.user_name
     g.user.name = new_name
     m.db.session.commit()
     return f'renamed {original_name} to {new_name}'
@@ -261,7 +261,7 @@ def is_workout_name(cmd):
 
 @parser(pcr)
 def workout(name, records):
-    logging.info("add records %s of workout %s for user %s", records, name, g.user.name)
+    logging.info("add records %s of workout %s for user %s", records, name, g.user_name)
     try:
         saved_records, workout = m.add_record(g.user, name, records)
         updated_progresses =\
