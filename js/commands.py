@@ -194,9 +194,9 @@ def hideme(cmd, args=None):
     m.db.session.add(g.user)
     m.db.session.commit()
     if invisible:
-        return f"{g.user} 隐身模式开启"
+        return f"隐身模式开启"
     else:
-        return f"{g.user} 隐身模式关闭"
+        return f"隐身模式关闭"
 
 
 @register_cmd(help_msg='修改自己的id')
@@ -269,7 +269,7 @@ def workout(name, records):
         m.db.session.commit()
     except m.JsError as error:
         return error.msg
-    record_message = f'{g.user} 打卡:\n{workout.description}: {records}'
+    record_message = f'打卡:\n{workout.description}: {records}'
     if len(updated_progresses) == 0:
         return record_message
     else:

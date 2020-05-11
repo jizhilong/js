@@ -349,7 +349,7 @@ def show_challenge_progresses(challenges=None):
         challenges = user.challenges
 
     if len(challenges) == 0:
-        return f'{g.user_name} 没有参加任何挑战'
+        return f'没有参加任何挑战'
 
     progresses = []
     for ch in challenges:
@@ -374,13 +374,13 @@ def join_challenge(challenge_name):
     joined = m.ChallengeProgress.query.with_parent(g.user) \
         .filter_by(challenge_id=challenge.id, finished=False).first()
     if joined is not None:
-        return f'{g.user_name} 已经参加了挑战-{challenge.description}'
+        return f'已经参加了挑战-{challenge.description}'
 
     definition = ChallengeDef.find_def(challenge)
     if definition is None:
         return f'抱歉，挑战活动-{challenge.description} 的规则还没有开发完成.'
     m.add_challenge_progress(g.user, challenge, **definition.initial())
-    return f'{g.user} 开始挑战 {challenge.description}'
+    return f'开始挑战 {challenge.description}'
 
 
 def update_challenge_progress_for_user(user, records: list):
