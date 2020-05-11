@@ -199,6 +199,18 @@ def hideme(cmd, args=None):
         return f"{g.user} 隐身模式关闭"
 
 
+@register_cmd(help_msg='修改自己的id')
+@parser(pct)
+def rename(cmd, args=None):
+    if not args:
+        return f"正确语法是: !js rename <new-name>"
+    new_name = args[0]
+    original_name = g.user.name
+    g.user.name = new_name
+    m.db.session.commit()
+    return f'renamed {original_name} to {new_name}'
+
+
 @register_cmd(help_msg='参与专项挑战')
 @parser(pct)
 def challenge(cmd, op_or_name=None):
@@ -293,7 +305,11 @@ if __name__ == '__main__':
     from .app import create_app
     app = create_app()
     with app.app_context():
-        g.user, _ = m.get_or_create_user(os.environ.get('USER'))
-        logging.basicConfig(level=logging.DEBUG)
-        print(process(' '.join(sys.argv[1:])))
-        m.db.session.commit()
+        user_name = os.environ.get('USER')
+        g.user = m.get_user(user_name)
+        if g.user is None:
+            print(f"{user_name} 不存在")
+        else:
+            logging.basicConfig(level=logging.DEBUG)
+            print(process(' '.join(sys.argv[1:])))
+            m.db.session.commit()

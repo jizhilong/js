@@ -31,7 +31,9 @@ def index():
     if processor is None:
         response['text'] = f'不存在此命令: {cmd}'
         return response
-    g.user, _ = m.get_or_create_user(r.user)
+    g.user = m.get_user(r.user)
+    if g.user is None:
+        response['text'] = f"{r.user} 不存在"
     response['text'] = processor.process(r.cmd)
     return jsonify(response)
 

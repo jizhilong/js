@@ -217,6 +217,10 @@ def get_or_create_user(name):
     return user, False
 
 
+def get_user(name):
+    return User.query.filter_by(name=name).first()
+
+
 def add_record(user_or_name, workout_name, groups):
     if isinstance(user_or_name, str):
         user, _ = get_or_create_user(user_or_name)
