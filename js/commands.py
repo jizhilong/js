@@ -199,18 +199,6 @@ def hideme(cmd, args=None):
         return f"隐身模式关闭"
 
 
-@register_cmd(help_msg='修改自己的id')
-@parser(pct)
-def rename(cmd, args=None):
-    if not args:
-        return f"正确语法是: !js rename <new-name>"
-    new_name = args[0]
-    original_name = g.user_name
-    g.user.name = new_name
-    m.db.session.commit()
-    return f'renamed {original_name} to {new_name}'
-
-
 @register_cmd(help_msg='参与专项挑战')
 @parser(pct)
 def challenge(cmd, op_or_name=None):
