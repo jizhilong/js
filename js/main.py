@@ -108,7 +108,7 @@ class TelegramRequest:
 
     @property
     def cmd(self):
-        return self.data['message']['text'].split(maxsplit=1)[1].strip()
+        return self.data['message']['text'].lstrip('/').replace('_', '-')
 
     @property
     def user_id(self):
