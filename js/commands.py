@@ -295,6 +295,7 @@ if __name__ == '__main__':
     with app.app_context():
         user_name = os.environ.get('USER')
         g.user = m.get_user(user_name)
+        g.user_name = user_name
         if g.user is None:
             print(f"{user_name} 不存在")
         else:

@@ -343,6 +343,52 @@ definitions.extend([ContinuousWorkoutChallenge(30),
                     ContinuousWorkoutChallenge(100)])
 
 
+class BurpeeChallenge(ChallengeDef):
+    """
+    burpee 挑战
+    """
+
+    def __init__(self, total):
+        self.total = total
+
+    def match_challenge(self, challenge):
+        return challenge.name.startswith('burpee') \
+               and challenge.total == self.total
+
+    def is_triggered(self, record):
+        return record.workout.name == 'burpee'
+
+    def initial(self):
+        return {}
+
+    def on_update(self, progress, record):
+        if progress.achieved >= self.total:
+            return False
+        progress.achieved = progress.achieved + record.times
+        if progress.achieved >= self.total:
+            progress.finished = True
+        return True
+
+    def repr(self, progress):
+        achieved = progress.achieved
+        total = progress.challenge.total
+        desc = progress.challenge.description
+        user = progress.user
+        if achieved < total:
+            return f'💪️{user} {desc} :: {achieved}/{total}'
+        else:
+            return f'👍恭喜{user}完成{desc} :: {achieved}/{total}'
+
+    def __str__(self):
+        return '%s次burpee挑战' % self.total
+
+
+definitions.extend([BurpeeChallenge(100), BurpeeChallenge(300),
+                    BurpeeChallenge(500), BurpeeChallenge(1000),
+                    BurpeeChallenge(3000), BurpeeChallenge(5000),
+                    ])
+
+
 def show_challenge_progresses(challenges=None):
     if challenges is None:
         user: m.User = g.user
